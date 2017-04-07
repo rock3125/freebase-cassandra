@@ -20,6 +20,7 @@ import org.apache.cassandra.config.Config;
 import org.apache.cassandra.dht.Murmur3Partitioner;
 import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.io.sstable.CQLSSTableWriter;
+import org.hyperic.sigar.cmd.Free;
 
 /**
  * Usage: java bulkload.BulkLoad1
@@ -54,8 +55,33 @@ public class UploadVocab
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public static void main(String[] args)
-    {
+    /**
+     * load the vocab map from the file located in freebasePath
+     * @param freebasePath the path where the files are generated at
+     * @return a map of int (vocab id) -> string (the word)
+     */
+    public static Map<Integer, String> loadVocab(String freebasePath) throws IOException {
+        Map<Integer, String> vocabMap = new HashMap<>();
+        try (BufferedReader reader =
+                     new BufferedReader(new InputStreamReader(
+                             new FileInputStream(freebasePath + File.separator + "freebase_vocab.txt")))) {
+            String line;
+            // and|2
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split("\\|");
+                if (parts.length == 2) {
+                    String word = parts[0];
+                    int word_id = Integer.parseInt(parts[1]);
+                    vocabMap.put(word_id, word);
+                }
+            } // while loop
+        }
+        return vocabMap;
+    }
+
+
+    public static void main(String[] args) throws IOException {
+
         if (args.length != 1) {
             System.out.println("usage: java bulkload.UploadVocab /path/to/free_base/output/");
             return;
@@ -127,24 +153,11 @@ public class UploadVocab
 
             CQLSSTableWriter writer_2 = builder_2.build();
 
-            try (BufferedReader reader =
-                         new BufferedReader(new InputStreamReader(
-                                 new FileInputStream(Freebase_base + File.separator + "freebase_vocab.txt")))) {
-                String line;
-                // and|2
-                while ((line = reader.readLine()) != null) {
-                    String[] parts = line.split("\\|");
-                    if (parts.length == 2) {
-                        String word = parts[0];
-                        int word_id = Integer.parseInt(parts[1]);
-                        writer_1.addRow(word_id, word, predicateMap.containsKey(word_id));
-                        writer_2.addRow(word, word_id, predicateMap.containsKey(word_id));
-                    }
-
-                } // while loop
-
-            } catch (InvalidRequestException | IOException e) {
-                e.printStackTrace();
+            Map<Integer, String> vocabMap = loadVocab(Freebase_base);
+            for (int word_id: vocabMap.keySet()) {
+                String word = vocabMap.get(word_id);
+                writer_1.addRow(word_id, word, predicateMap.containsKey(word_id));
+                writer_2.addRow(word, word_id, predicateMap.containsKey(word_id));
             }
 
             try {

@@ -27,6 +27,26 @@ public class CreateInvertedIndices {
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    private static StopWords stopWords;
+
+    /**
+     * filter wordList for stop words (remove any stop-words)
+     * @param wordList the list to check
+     * @return a new list with the stop words removed
+     */
+    private IntArrayList filter_stop_words(IntArrayList wordList, Map<Integer, String> vocabMap) {
+        IntArrayList filtered = new IntArrayList();
+        for (int i = 0; i < wordList.size(); i++ ) {
+            int id = wordList.get(i);
+            String word = vocabMap.get(id);
+            if (!stopWords.isStopWord(word)) {
+                filtered.add(id);
+            }
+        }
+        return filtered;
+    }
+
+
     private static List<Integer> toIntList(String line) {
         List<Integer> list = new ArrayList<>();
         String[] parts = line.split(",");
@@ -39,15 +59,19 @@ public class CreateInvertedIndices {
 
     // setup an index
     private static void addIndex(int word, int predicate, int id_counter,
+                                 Map<Integer, String> vocabMap,
                                  Map<Long, IntArrayList> map) {
         // add an inverted index
-        long index = ((long)(word) << 32L) + predicate;
-        IntArrayList existing = map.get(index);
-        if (existing == null) {
-            existing = new IntArrayList();
-            map.put(index, existing);
+        String wordStr = vocabMap.get(word);
+        if (!stopWords.isStopWord(wordStr)) {
+            long index = ((long) (word) << 32L) + predicate;
+            IntArrayList existing = map.get(index);
+            if (existing == null) {
+                existing = new IntArrayList();
+                map.put(index, existing);
+            }
+            existing.add(id_counter);
         }
-        existing.add(id_counter);
     }
 
     // setup an index
@@ -73,8 +97,8 @@ public class CreateInvertedIndices {
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) throws IOException {
+
         if (args.length != 1) {
             System.out.println("usage: java bulkload.CreateInvertedIndices /path/to/free_base/data/");
             return;
@@ -85,8 +109,13 @@ public class CreateInvertedIndices {
         // magic!
         Config.setClientMode(true);
 
+        stopWords = new StopWords();  // setup stop words
+
         // create inverted indexes
         Map<Long, IntArrayList> map = new HashMap<>();
+
+        // load vocab table
+        Map<Integer, String> vocabMap = UploadVocab.loadVocab(Freebase_base);
 
         // create main table
         {
@@ -110,7 +139,7 @@ public class CreateInvertedIndices {
                         set.addAll(lhs);
                         set.addAll(rhs);
                         for (int id : set) {
-                            addIndex(id, predicate, id_counter, map);
+                            addIndex(id, predicate, id_counter, vocabMap, map);
                         }
 
                         id_counter += 1;

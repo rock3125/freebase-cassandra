@@ -149,11 +149,10 @@ public class ConvertFreebase {
     private void writeVocab(BufferedWriter writer, List<String> vocabItems,
                             Map<String, Integer> vocab) throws IOException {
         for (String item : vocabItems) {
-            String lwrItem = item.toLowerCase();
-            if (!vocab.containsKey(lwrItem)) {
+            if (!vocab.containsKey(item)) {
                 int id = vocab.size() + 1;
-                vocab.put(lwrItem, id);
-                writer.write(lwrItem + "|" + id + "\n");
+                vocab.put(item, id);
+                writer.write(item + "|" + id + "\n");
             }
         }
     }
