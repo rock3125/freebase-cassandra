@@ -21,15 +21,15 @@ This generates freebase_vocab.txt, freebase_data.txt, and freebase_predicate_voc
 
 This generates a set of inverted indexes for the upload process.  This part requires a lot of RAM as I haven't created a merge-sort for the hashmap and thus the entire freebase int based reference system needs to live in RAM temporarily.  This part of the process creates a file "inverted_indexes.txt".
 
-    $ ./3_upload_tuples.sh .
+    $ ./3_generate_tuples.sh .
 
 This process creates an SSTABLE file for a hardwired KEYSPACE "kai_ai" and a CF called "freebase_tuple".  This will create a folder "kai_ai" and a folder inside that called freebase_tuple.  This process reads the "freebase_vocab.txt" and "freebase_data.txt" files to create a vocab/index based set of tuples inside this freebase_tuple CF.
 
-    $ ./4_upload_indexes.sh .
+    $ ./4_generate_indexes.sh .
 
 This process creates an SSTABLE file for a hardwired KEYSPACE "kai_ai" and a CF called "freebase_index".  This will create a folder "kai_ai" and a folder inside that called freebase_index.  This process reads the "inverted_indexes.txt" and populates the "freebase_index" SSTABLE files.
 
-    $ ./5_upload_vocab.sh .
+    $ ./5_generate_vocab.sh .
 
 This part of the process creates two additional folders in the "kai_ai" KEYSPACE folder called "freebase_vocab" and "freebase_word".  Once this part of the process has finished, all file based SSTABLES can be uploaded to Cassandra.
 
