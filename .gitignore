@@ -1,0 +1,13 @@
+.gitignore
+
+# Gradle
+.gradle
+build/
+
+# data
+data/
+dependencies/
+
+# IntelliJ
+*.iml
+*.idea/
