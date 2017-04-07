@@ -27,22 +27,18 @@ import org.apache.cassandra.io.sstable.CQLSSTableWriter;
  */
 public class UploadIndexes
 {
-    /** Keyspace name */
-    private static final String KEYSPACE = "kai_ai";
-
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    private static final String TABLE_2 = "freebase_index";
 
     private static final String SCHEMA_2 = String.format("CREATE TABLE %s.%s (" +
             "predicate int, " +
             "word int, " +
             "tuples list<int>, " +
             "PRIMARY KEY ((predicate, word)) " +
-            ") ", KEYSPACE, TABLE_2);
+            ") ", Constants.KEYSPACE, Constants.CF_INDEX);
 
     private static final String INSERT_STMT_2 =
-            String.format("INSERT INTO %s.%s (predicate, word, tuples) VALUES (?, ?, ?)", KEYSPACE, TABLE_2);
+            String.format("INSERT INTO %s.%s (predicate, word, tuples) VALUES (?, ?, ?)",
+                    Constants.KEYSPACE, Constants.CF_INDEX);
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -72,7 +68,7 @@ public class UploadIndexes
 
         // create inverted indexes
         {
-            File outputDir2 = new File(KEYSPACE + File.separator + TABLE_2);
+            File outputDir2 = new File(Constants.KEYSPACE + File.separator + Constants.CF_INDEX);
             if (!outputDir2.exists() && !outputDir2.mkdirs()) {
                 throw new RuntimeException("Cannot create output directory: " + outputDir2);
             }
@@ -145,7 +141,7 @@ public class UploadIndexes
 
 
         System.out.println("done");
-        String path = KEYSPACE + File.separator + TABLE_2;
+        String path = Constants.KEYSPACE + File.separator + Constants.CF_INDEX;
         System.out.println("you can upload these files to Cassandra: sstableloader -d host " + path);
         System.exit(0);
 

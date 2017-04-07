@@ -26,23 +26,18 @@ import org.apache.cassandra.io.sstable.CQLSSTableWriter;
  */
 public class UploadVocab
 {
-    /** Keyspace name */
-    private static final String KEYSPACE = "kai_ai";
-
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    private static final String TABLE_1 = "freebase_vocab";
-    private static final String TABLE_2 = "freebase_word";
 
     private static final String SCHEMA_1 = String.format("CREATE TABLE %s.%s (" +
             "id int, " +
             "word text, " +
             "is_predicate boolean, " +
             "PRIMARY KEY (id) " +
-            ") ", KEYSPACE, TABLE_1);
+            ") ", Constants.KEYSPACE, Constants.CF_VOCAB);
 
     private static final String INSERT_STMT_1 =
-            String.format("INSERT INTO %s.%s (id, word, is_predicate) VALUES (?, ?, ?)", KEYSPACE, TABLE_1);
+            String.format("INSERT INTO %s.%s (id, word, is_predicate) VALUES (?, ?, ?)",
+                    Constants.KEYSPACE, Constants.CF_VOCAB);
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -51,10 +46,11 @@ public class UploadVocab
             "id int, " +
             "is_predicate boolean, " +
             "PRIMARY KEY (word) " +
-            ");", KEYSPACE, TABLE_2);
+            ");", Constants.KEYSPACE, Constants.CF_WORD);
 
     private static final String INSERT_STMT_2 =
-            String.format("INSERT INTO %s.%s (word, id, is_predicate) VALUES (?, ?, ?);", KEYSPACE, TABLE_2);
+            String.format("INSERT INTO %s.%s (word, id, is_predicate) VALUES (?, ?, ?);",
+                    Constants.KEYSPACE, Constants.CF_WORD);
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -72,13 +68,13 @@ public class UploadVocab
 
         // create main table
         {
-            // Create output directory that has keyspace and table name in the path
-            File outputDir1 = new File(KEYSPACE + File.separator + TABLE_1);
+            // Create output directory that has Constants.KEYSPACE and table name in the path
+            File outputDir1 = new File(Constants.KEYSPACE + File.separator + Constants.CF_VOCAB);
             if (!outputDir1.exists() && !outputDir1.mkdirs()) {
                 throw new RuntimeException("Cannot create output directory: " + outputDir1);
             }
 
-            File outputDir2 = new File(KEYSPACE + File.separator + TABLE_2);
+            File outputDir2 = new File(Constants.KEYSPACE + File.separator + Constants.CF_WORD);
             if (!outputDir2.exists() && !outputDir2.mkdirs()) {
                 throw new RuntimeException("Cannot create output directory: " + outputDir2);
             }
@@ -165,10 +161,10 @@ public class UploadVocab
 
 
         System.out.println("done");
-        String path_1 = KEYSPACE + File.separator + TABLE_1;
+        String path_1 = Constants.KEYSPACE + File.separator + Constants.CF_VOCAB;
         System.out.println("you can upload these files to Cassandra:\nsstableloader -d host " + path_1);
 
-        String path_2 = KEYSPACE + File.separator + TABLE_2;
+        String path_2 = Constants.KEYSPACE + File.separator + Constants.CF_WORD;
         System.out.println("sstableloader -d host " + path_2);
 
         System.exit(0);

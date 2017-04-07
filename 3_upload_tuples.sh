@@ -1,6 +1,6 @@
 #!/bin/bash
 
-java -cp "dependencies/*" -Xmx40G \
+java -cp "dependencies/*" \
 bulkload.UploadTuples "$@"
 
 exit 0

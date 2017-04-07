@@ -26,12 +26,7 @@ import org.apache.cassandra.io.sstable.CQLSSTableWriter;
  */
 public class UploadTuples {
 
-    /** Keyspace name */
-    private static final String KEYSPACE = "kai_ai";
-
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    private static final String TABLE_1 = "freebase_tuple";
 
     private static final String SCHEMA_1 = String.format("CREATE TABLE %s.%s (" +
                                                           "id int, " +
@@ -39,9 +34,10 @@ public class UploadTuples {
                                                           "predicate int, " +
                                                           "rhs list<int>, " +
                                                           "PRIMARY KEY (id) " +
-                                                      ") ", KEYSPACE, TABLE_1);
+                                                      ") ", Constants.KEYSPACE, Constants.CF_TUPLE);
     private static final String INSERT_STMT_1 =
-            String.format("INSERT INTO %s.%s (id, lhs, predicate, rhs) VALUES (?, ?, ?, ?)", KEYSPACE, TABLE_1);
+            String.format("INSERT INTO %s.%s (id, lhs, predicate, rhs) VALUES (?, ?, ?, ?)",
+                    Constants.KEYSPACE, Constants.CF_TUPLE);
 
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,7 +69,7 @@ public class UploadTuples {
         // create main table
         {
             // Create output directory that has keyspace and table name in the path
-            File outputDir1 = new File(KEYSPACE + File.separator + TABLE_1);
+            File outputDir1 = new File(Constants.KEYSPACE + File.separator + Constants.CF_TUPLE);
             if (!outputDir1.exists() && !outputDir1.mkdirs()) {
                 throw new RuntimeException("Cannot create output directory: " + outputDir1);
             }
@@ -132,7 +128,7 @@ public class UploadTuples {
 
 
         System.out.println("done");
-        String path = KEYSPACE + File.separator + TABLE_1;
+        String path = Constants.KEYSPACE + File.separator + Constants.CF_TUPLE;
         System.out.println("you can upload these files to Cassandra: sstableloader -d host " + path);
         System.exit(0);
 
