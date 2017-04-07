@@ -5,7 +5,7 @@ This uploads transformed FreeBase data into a set of indexes and a set of tuples
 
 ## Generating SSTables
 
-Run:
+Run:  (see setup.sh)
 
     $ gradle clean build
     $ gradle copyRuntimeLibs
@@ -53,7 +53,7 @@ Then, load SSTables to Cassandra using `sstableloader`:
 ## Check loaded data
 
 
-    $ bin/cqlsh
+    $ cqlsh
     Connected to Test Cluster at 127.0.0.1:9042.
     [cqlsh 5.0.1 | Cassandra 2.1.0 | CQL spec 3.2.0 | Native protocol v3]
     Use HELP for help.
